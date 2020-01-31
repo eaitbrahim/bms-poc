@@ -1,0 +1,117 @@
+{
+  "BusinessUnit": "eTransport",
+  "EdgeHWRSN": "Ax_12598324",
+  "EdgeSWRVer": "Ax_2.5.3",
+  "BMSHWRSN": "G2_2.4.1",
+  "BMSSWRVer": "G2_3.2.0",
+  "localtime": {
+    "Description": "Edge device local time",
+    "Value": "13.05.2019 08:09:05"
+  },
+  "ReqWCheck": {
+    "Description": "Connect Request with check",
+    "Value": "02"
+  },
+  "ReqWoutCheck": {
+    "Description": "Connect Request without check",
+    "Value": "03"
+  },
+  "ClearFault": {
+    "Description": "Clear Faults",
+    "Value": "04"
+  },
+  "EnBalance": {
+    "Description": "Balance Enable",
+    "Value": "05"
+  },
+  "DV": {
+    "Description": "Delta Voltage",
+    "Unit": "0.1V",
+    "Value": "06"
+  },
+  "SOC": {
+    "Description": "State of charge",
+    "Unit": "%",
+    "Value": "07"
+  },
+  "AError": {
+    "Description": "Active Error-Code",
+    "Unit": "Bitfield",
+    "Value": "08"
+  },
+  "AWarning": {
+    "Description": "Active Warning-Code",
+    "Unit": "Bitfield",
+    "Value": "09"
+  },
+  "IChgLimit": {
+    "Description": "Charge Current Limit",
+    "Unit": "0.1A",
+    "Value": 10
+  },
+  "IDsgLimit": {
+    "Description": "Discharge Current Limit",
+    "Unit": "0.1A",
+    "Value": 11
+  },
+  "SOH": {
+    "Description": "State of Health",
+    "Unit": "%",
+    "Value": 12
+  },
+  "VBattery": {
+    "Description": "Battery voltage",
+    "Unit": "0.1V",
+    "Value": 13
+  },
+  "IBattery": {
+    "Description": "Battery current",
+    "Unit": "0.1A",
+    "Value": 14
+  },
+  "VCellMin": {
+    "Description": "Cell Voltage Min",
+    "Unit": "mV",
+    "Value": 15
+  },
+  "VCellMinID": {
+    "Description": "Cell Voltage Min ID",
+    "Value": 16
+  },
+  "VCellMax": {
+    "Description": "Cell Voltage Max",
+    "Unit": "mV",
+    "Value": 17
+  },
+  "VCellMaxID": {
+    "Description": "Cell Voltage Max ID",
+    "Value": 23
+  },
+  "TModMin": {
+    "Description": "Module Temp Min",
+    "Unit": "0.1°C",
+    "Value": 19
+  },
+  "HV2": {
+    "Description": "Load Voltage",
+    "Unit": "0.1V",
+    "Value": 20
+  },
+  "TModMax": {
+    "Description": "Module Temp Max",
+    "Unit": "0.1°C",
+    "Value": 21
+  },
+  "TModMinID": {
+    "Description": "Module Temp Min ID",
+    "Value": 22
+  },
+  "ErrorFlags": {
+    "Description": "Error Flags",
+    "Value": 24
+  },
+  "WarningFlags": {
+    "Description": "Warning Flags",
+    "Value": 25
+  }
+}
