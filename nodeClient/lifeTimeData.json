@@ -32,7 +32,7 @@
   "SOC": {
     "Description": "State of charge",
     "Unit": "%",
-    "Value": "07"
+    "Value": 7
   },
   "AError": {
     "Description": "Active Error-Code",

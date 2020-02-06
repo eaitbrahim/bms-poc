@@ -36,7 +36,7 @@ const Battery = new Schema({
   SOC: {
     Description: String,
     Unit: String,
-    Value: String
+    Value: Number
   },
   AError: {
     Description: String,

@@ -9,6 +9,7 @@ function performanceData() {
       }
       const formattedData = JSON.parse(data);
       formattedData.localtime.Value = new Date();
+      formattedData.SOC.value = Math.floor(Math.random() * 99) + 1;
       formattedData.SOH.value = Math.floor(Math.random() * 30) + 1;
       formattedData.VBattery.value = Math.floor(Math.random() * 30) + 1;
       formattedData.IBattery.value = Math.floor(Math.random() * 30) + 1;
