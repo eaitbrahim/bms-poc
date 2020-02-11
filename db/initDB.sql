@@ -1,10 +1,11 @@
 DROP TABLE IF EXISTS MetaData;
 DROP TABLE IF EXISTS PrimaryData;
 DROP TABLE IF EXISTS SyncLog;
-DROP TABLE IF EXISTS Battery;
+DROP TABLE IF EXISTS "System";
 
-CREATE TABLE "Battery" (
+CREATE TABLE "System" (
 	"Id"	INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+	"ConfigVer"	TEXT NOT NULL,
 	"BusinessUnit"	TEXT NOT NULL,
 	"EdgeHWRSN"	TEXT NOT NULL,
 	"EdgeSWRVer"	TEXT NOT NULL,
@@ -21,17 +22,16 @@ CREATE TABLE "MetaData" (
 CREATE TABLE "PrimaryData" (
 	"Id"	INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
 	"Localtime"	TEXT NOT NULL,
-	"ReqWCheck"	INTEGER NOT NULL,
-	"ReqWoutCheck"	INTEGER NOT NULL,
-	"ClearFault"	INTEGER NOT NULL,
-	"EnBalance"	INTEGER NOT NULL,
-	"DV"	INTEGER NOT NULL,
+	"HB1"	INTEGER NOT NULL,
 	"SOC"	INTEGER NOT NULL,
-	"AError"	INTEGER NOT NULL,
-	"AWarning"	INTEGER NOT NULL,
+	"SOCMax"	INTEGER NOT NULL,
+	"SOCMin"	INTEGER NOT NULL,
 	"IChgLimit"	INTEGER NOT NULL,
 	"IDsgLimit"	INTEGER NOT NULL,
+	"HB2"	INTEGER NOT NULL,
 	"SOH"	INTEGER NOT NULL,
+	"OpStatus"	INTEGER NOT NULL,
+	"RlyStatus"	INTEGER NOT NULL,
 	"VBattery"	INTEGER NOT NULL,
 	"IBattery"	INTEGER NOT NULL,
 	"VCellMin"	INTEGER NOT NULL,
@@ -39,57 +39,56 @@ CREATE TABLE "PrimaryData" (
 	"VCellMax"	INTEGER NOT NULL,
 	"VCellMaxID"	INTEGER NOT NULL,
 	"TModMin"	INTEGER NOT NULL,
-	"HV2"	INTEGER NOT NULL,
+	"TModAvg"	INTEGER NOT NULL,
 	"TModMax"	INTEGER NOT NULL,
 	"TModMinID"	INTEGER NOT NULL,
-	"TModMaxId"	INTEGER NOT NULL,
-	"ErrorFlags"	INTEGER NOT NULL,
-	"WarningFlags"	INTEGER NOT NULL,
+	"TModMaxID"	INTEGER NOT NULL,
+	"HIBattery"	INTEGER NOT NULL,
+	"reserved"	INTEGER NOT NULL,
 	"CreatedAt"	TEXT NOT NULL,
-	"BatteryId"	INTEGER NOT NULL,
-	FOREIGN KEY("BatteryId") REFERENCES "Battery"("Id")
+	"SystemId"	INTEGER NOT NULL,
+	FOREIGN KEY("SystemId") REFERENCES "System"("Id")
 );
 
 CREATE TABLE "SyncLog" (
-	"BatteryId"	INTEGER NOT NULL,
+	"SystemId"	INTEGER NOT NULL,
 	"PrimaryDataId"	INTEGER NOT NULL,
 	"SyncDate"	TEXT,
 	"SyncComment"	TEXT,
 	"Synced"	INTEGER NOT NULL DEFAULT 0,
-	PRIMARY KEY("BatteryId","PrimaryDataId")
+	PRIMARY KEY("SystemId","PrimaryDataId")
 );
 
-INSERT INTO Battery  (BusinessUnit, EdgeHWRSN, EdgeSWRVer, BMSHWRSN, BMSSWRVer) VALUES ('eTransport', 'Ax_12598324', 'Ax_2.5.3',
+INSERT INTO "System"  (ConfigVer, BusinessUnit, EdgeHWRSN, EdgeSWRVer, BMSHWRSN, BMSSWRVer) VALUES ('1.2.0', 'eTransport', 'Ax_12598324', 'Ax_2.5.3',
 'G2_2.4.1', 'G2_3.2.0');
 
 INSERT INTO PrimaryData  (
     Localtime,
-ReqWCheck,
-ReqWoutCheck,
-ClearFault,
-EnBalance,
-DV,
-SOC,
-AError,
-AWarning,
-IChgLimit,
-IDsgLimit,
-SOH,
-VBattery,
-IBattery,
-VCellMin,
-VCellMinID,
-VCellMax,
-VCellMaxID,
-TModMin,
-HV2,
-TModMax,
-TModMinID,
-    TModMaxID,
-ErrorFlags,
-WarningFlags,
-CreatedAt,
-BatteryId
+	HB1,
+	SOC,
+	SOCMax,
+	SOCMin,
+	IChgLimit,
+	IDsgLimit,
+	HB2,
+	SOH,
+	OpStatus,
+	RlyStatus,
+	VBattery,
+	IBattery,
+	VCellMin,
+	VCellMinID,
+	VCellMax,
+	VCellMaxID,
+	TModMin,
+	TModAvg,
+	TModMax,
+	TModMinID,
+	TModMaxID,
+	HIBattery,
+	reserved,
+	CreatedAt,
+	SystemId
 ) VALUES (
     '13.05.2019 08:09:05',
     2,
@@ -115,7 +114,6 @@ BatteryId
     22,
     23,
     24,
-    25,
     date('now'),
     1    
 ),
@@ -144,7 +142,6 @@ BatteryId
     23,
     24,
     25,
-    26,
     date('now'),
     1    
 ),
@@ -173,39 +170,36 @@ BatteryId
     24,
     25,
     26,
-    27,
     date('now'),
     1    
 );
 
-INSERT INTO  SyncLog (BatteryId, PrimaryDataId) VALUES (1, 1);
-INSERT INTO SyncLog (BatteryId, PrimaryDataId) VALUES (1, 2);
-INSERT INTO SyncLog (BatteryId, PrimaryDataId) VALUES (1, 3);
+INSERT INTO  SyncLog (SystemId, PrimaryDataId) VALUES (1, 1);
+INSERT INTO SyncLog (SystemId, PrimaryDataId) VALUES (1, 2);
+INSERT INTO SyncLog (SystemId, PrimaryDataId) VALUES (1, 3);
 
 INSERT INTO MetaData (Key, Value, UNIT) VALUES
 ('Localtime',	'Edge device local time', NULL),
-('ReqWCheck',	'Connect Request with check', NULL),
-('ReqWoutCheck',	'Connect Request without check', NULL),
-('ClearFault',	'Clear Faults', NULL),
-('EnBalance',	'Balance Enable', NULL),
-('DV',	'Delta Voltage', '0.1V'),
-('SOC',	'State of charge', '%'),
-('AError',	'Active Error-Code', 'Bitfield'),
-('AWarning',	'Active Warning-Code', 'Bitfield'),
-('IChgLimit',	'Charge Current Limit', '0.1A'),
-('IDsgLimit',	'Discharge Current Limit', '0.1A'),
-('SOH',	'State of Health', '%'),
-('VBattery',	'Battery voltage', '0.1V'),
-('IBattery',	'Battery current', '0.1A'),
-('VCellMin',	'Cell Voltage Min', 'mV'),
-('VCellMinID',	'Cell Voltage Min ID', NULL),
-('VCellMax',	'Cell Voltage Max', 'mV'),
-('VCellMaxID',	'Cell Voltage Max ID', NULL),
-('TModMin',	'Module Temp Min', '0.1°C'),
-('HV2',	'Load Voltage', '0.1V'),
-('TModMax',	'Module Temp Max', '0.1°C'),
-('TModMinID',	'Module Temp Min ID', NULL),
-('TModMaxID',	'Module Temp Max ID', NULL),
-('ErrorFlags',	'Error Flags', NULL),
-('WarningFlags',	'Warning Flags', NULL);
-
+('HB1','Hearbeat 1','%'),
+('SOC','State of charge','%'),
+('SOCMax','State of charge Max','%'),
+('SOCMin','State of charge Min','%'),
+('IChgLimit','Charge Current Limit','100mA'),
+('IDsgLimit','Discharge Current Limit','100mA'),
+('HB2','Hearbeat 2','%'),
+('SOH','State of Health','%'),
+('OpStatus','Operation Status','%'),
+('RlyStatus','Contactor Status','%'),
+('VBattery','Stack voltage','0.1V'),
+('IBattery','Stack current','0.1A'),
+('VCellMin','Cell Voltage Min','mV'),
+('VCellMinID','Cell Voltage Min ID','-'),
+('VCellMax','Cell Voltage Max','mV'),
+('VCellMaxID','Cell Voltage Max ID','-'),
+('TModMin','Module Temp Min','0.1°C'),
+('TModAvg','Module Temp Avg','0.1V'),
+('TModMax','Module Temp Max','0.1°C'),
+('TModMinID','Module Temp Min ID','-'),
+('TModMaxID','Cell Voltage Max ID','-'),
+('HIBattery','High Resulution Current','1mA'),
+('reserved','Reserveed Parameter','-');
