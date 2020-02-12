@@ -95,7 +95,6 @@ function checkAndAdd(data) {
           reject(err);
         } else if (doc == null) {
           let newSystem = new System(data);
-          newSystem.performanceData = [];
           newSystem.save();
           resolve('added');
         } else {

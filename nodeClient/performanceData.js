@@ -1,7 +1,7 @@
-// const fs = require('fs');
-const sqlite3 = require('sqlite3');
+const AppDAO = require('./dao');
+const Repository = require('./repository');
 
-let data = {
+const data = {
   ConfigVer: '',
   BusinessUnit: '',
   EdgeHWRSN: '',
@@ -11,76 +11,44 @@ let data = {
   performanceData: []
 };
 
+const dao = new AppDAO('./db/bms.db');
+const repo = new Repository(dao);
+
 function performanceData() {
-  return new Promise(async (resolve, reject) => {
-    // fs.readFile('./lifeTimeData.json', (err, data) => {
-    //   if (err) {
-    //     throw err;
-    //     reject(err);
-    //   }
-    //   const formattedData = JSON.parse(data);
-    //   formattedData.localtime.Value = new Date();
-    //   formattedData.SOC.value = Math.floor(Math.random() * 99) + 1;
-    //   formattedData.SOH.value = Math.floor(Math.random() * 30) + 1;
-    //   formattedData.VBattery.value = Math.floor(Math.random() * 30) + 1;
-    //   formattedData.IBattery.value = Math.floor(Math.random() * 30) + 1;
-    //   formattedData.HV2.value = Math.floor(Math.random() * 30) + 1;
-    //   resolve(formattedData);
-    // });
-
-    // Read data from db
-    let db = new sqlite3.Database('./db/bms.db', sqlite3.OPEN_READONLY, err => {
-      if (err) {
-        throw err.message;
-        reject(err.message);
-      }
-      console.log('Connected to the bms database for readonly');
+  return new Promise((resolve, reject) => {
+    repo.getSystemInfo(1).then(system => {
+      data.ConfigVer = system.ConfigVer;
+      data.BusinessUnit = system.BusinessUnit;
+      data.EdgeHWRSN = system.EdgeHWRSN;
+      data.EdgeSWRVer = system.EdgeSWRVer;
+      data.BMSHWRSN = system.BMSHWRSN;
+      data.BMSSWRVer = system.BMSSWRVer;
     });
 
-    db.parallelize(() => {
-      readSystem(db);
-      readNotSyncedPrimaryData(db);
-    });
+    repo
+      .getNewPrimaryData()
+      .then(newPrimaryData => {
+        newPrimaryData.forEach(d => {
+          data.performanceData.push(d);
+        });
+        return data;
+      })
+      .then(({ performanceData }) => {
+        if (performanceData.length > 0) {
+          repo.updateSyncLog({
+            SyncDate: Date.now(),
+            SyncComment: 'Processing',
+            Synced: 2,
+            performanceData: performanceData.map(d => d.Id)
+          });
+        }
+      })
+      .catch(err => {
+        console.log(`Error: ${JSON.stringify(err)}`);
+      });
 
-    db.close(err => {
-      if (err) {
-        throw err.message;
-        reject(err.message);
-      }
-
-      resolve(data);
-      console.log('Close the database connection');
-    });
+    resolve(data);
   });
-}
-
-function readSystem(db) {
-  db.each(`SELECT * FROM System`, (err, row) => {
-    if (err) {
-      throw err.message;
-      reject(err.message);
-    }
-
-    data.ConfigVer = row.ConfigVer;
-    data.BusinessUnit = row.BusinessUnit;
-    data.EdgeHWRSN = row.EdgeHWRSN;
-    data.EdgeSWRVer = row.EdgeSWRVer;
-    data.BMSHWRSN = row.BMSHWRSN;
-    data.BMSSWRVer = row.BMSSWRVer;
-  });
-}
-
-function readNotSyncedPrimaryData(db) {
-  db.each(
-    `SELECT * FROM PrimaryData P INNER JOIN SyncLog S ON P.Id = S.PrimaryDataId WHERE S.Synced = 0`,
-    (err, row) => {
-      if (err) {
-        throw err.message;
-        reject(err.message);
-      }
-      data.performanceData.push(row);
-    }
-  );
 }
 
 module.exports = performanceData;
