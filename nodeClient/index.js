@@ -3,6 +3,7 @@ const io = require('socket.io-client');
 
 const keys = require('./config/keys');
 const performanceData = require('./performanceData');
+const syncLog = require('./syncLog');
 
 let socket = io(keys.clusterUrl);
 
@@ -11,8 +12,8 @@ socket.on('connect', () => {
   let macA;
   for (let key in nI) {
     // For testing purposes:
-    macA = Math.floor(Math.random() * 3) + 1;
-    break;
+    // macA = Math.floor(Math.random() * 3) + 1;
+    // break;
 
     // For production
     if (!nI[key][0].internal) {
@@ -41,11 +42,16 @@ socket.on('connect', () => {
     performanceData().then(allPerformanceData => {
       allPerformanceData.macA = macA;
       allPerformanceData.isActive = true;
-      socket.emit('perfData', allPerformanceData);
+      if (allPerformanceData.performanceData.length > 0) {
+        socket.emit('perfData', allPerformanceData);
+      }
     });
   }, keys.sendingOverDataInterval);
 
   socket.on('disconnect', () => {
     clearInterval(perfDataInterval);
   });
+
+  // allPerformanceData has been synced
+  socket.on('synced', performanceData => syncLog(performanceData));
 });
