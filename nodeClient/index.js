@@ -1,5 +1,6 @@
 const os = require('os');
 const io = require('socket.io-client');
+const cron = require('node-cron');
 
 const keys = require('./config/keys');
 const performanceData = require('./performanceData');
@@ -31,6 +32,8 @@ socket.on('connect', () => {
   // client auth with simple key value
   socket.emit('clientAuth', '6677ytyty7677ghgd77793');
 
+  // Initial read
+  console.log(`${Date.now()} Sending intial primary data to the server...`);
   performanceData().then(allPerformanceData => {
     allPerformanceData.macA = macA;
     allPerformanceData.isActive = true;
@@ -38,7 +41,18 @@ socket.on('connect', () => {
   });
 
   // start sending over data on interval
+  // let task = cron.schedule('1 * * * * *', () => {
+  //   console.log(`${Date.now()} Sending primary data to the server...`);
+  //   performanceData().then(allPerformanceData => {
+  //     allPerformanceData.macA = macA;
+  //     allPerformanceData.isActive = true;
+  //     if (allPerformanceData.performanceData.length > 0) {
+  //       socket.emit('perfData', allPerformanceData);
+  //     }
+  //   });
+  // });
   let perfDataInterval = setInterval(() => {
+    console.log(`${Date.now()} Sending primary data to the server...`);
     performanceData().then(allPerformanceData => {
       allPerformanceData.macA = macA;
       allPerformanceData.isActive = true;
@@ -50,6 +64,7 @@ socket.on('connect', () => {
 
   socket.on('disconnect', () => {
     clearInterval(perfDataInterval);
+    //task.destroy();
   });
 
   // allPerformanceData has been synced
